@@ -1,0 +1,63 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Updates per second",
+      "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+      "targets": [{"expr": "rate(updates_total[5m])"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Commands per second (by command)",
+      "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+      "legend": {"showLegend": true},
+      "targets": [{"expr": "sum by (command) (rate(commands_total[5m]))"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Total commands per second",
+      "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+      "targets": [{"expr": "rate(commands_handled_total[5m])"}]
+    },
+    {
+      "type": "stat",
+      "title": "Messages total",
+      "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8},
+      "targets": [{"expr": "sum(messages_total)", "legendFormat": "Messages"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"}
+    },
+    {
+      "type": "stat",
+      "title": "Rate limit blocks (total)",
+      "gridPos": {"x": 12, "y": 16, "w": 6, "h": 4},
+      "targets": [{"expr": "sum(rate_limit_blocks_total)", "legendFormat": "RL blocks"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"}
+    },
+    {
+      "type": "stat",
+      "title": "Mistral errors (total)",
+      "gridPos": {"x": 18, "y": 16, "w": 6, "h": 4},
+      "targets": [{"expr": "sum(mistral_errors_total)", "legendFormat": "Errors"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"}
+    },
+    {
+      "type": "stat",
+      "title": "Ready",
+      "gridPos": {"x": 0, "y": 16, "w": 6, "h": 4},
+      "targets": [{"expr": "ready"}]
+    },
+    {
+      "type": "stat",
+      "title": "Uptime (s)",
+      "gridPos": {"x": 6, "y": 16, "w": 6, "h": 4},
+      "targets": [{"expr": "uptime_seconds"}]
+    }
+  ],
+  "schemaVersion": 36,
+  "title": "GroupMind Overview",
+  "version": 1
+}
+
+
