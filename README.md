@@ -1,120 +1,71 @@
 # GroupMind
 
-A simple Telegram group assistant powered by Mistral AI. Responds to @mentions and commands in group chats.
+Telegram group assistant powered by Mistral. Production-ready single-file bot with Redis durable reminders, rate limiting, health/ready endpoints, Prometheus metrics, Grafana dashboard, Docker/Compose, and CI.
 
 ## Features
 
-- @mentions: Responds when mentioned in groups
-- Commands: `/ask`, `/summarize`, `/translate`, `/memory`, `/help`, `/remind`
-- Memory: Per-chat memory toggle with conversation context
-- DMs: Full conversation support in DMs
-- Rate limiting: Per-user and per-chat, Redis-backed or in-memory fallback
-- Health & metrics: HTTP endpoints for readiness and basic counters
+- @mentions: Replies when mentioned (like `/ask`)
+- Commands: `/ask`, `/summarize`, `/translate`, `/remind|/reminder`, `/memory`, `/help`, `/archetype`
+- Memory: Per-chat toggle for contextual answers (on/off)
+- Reminders: Natural times; durable with Redis
+- Rate limiting: Per-user and per-chat (Redis-backed or in-memory)
+- Observability: `/ready`, `/healthz`, `/metrics` + Grafana dashboard
+- Packaging: Dockerfile, docker-compose (Redis/Prom/Grafana), GitHub Actions CI
 
-## Quick Setup
+## Environment
 
-1. **Create conda environment:**
-   ```bash
-   conda create -n groupmind python=3.11 -y
-   conda activate groupmind
-   ```
+Create `.env` (see `env.example`):
 
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+- `MISTRAL_API_KEY` (required)
+- `TELEGRAM_BOT_TOKEN` (required)
+- `REDIS_URL` (optional; e.g., `redis://redis:6379/0` under compose)
+- `HEALTH_PORT` (default `8080`)
+- Rate limits (optional): `RATE_LIMIT_USER`, `RATE_WINDOW_USER`, `RATE_LIMIT_CHAT`, `RATE_WINDOW_CHAT`
 
-3. **Get API keys:**
-   - **Mistral API**: Get from [console.mistral.ai](https://console.mistral.ai/)
-   - **Telegram Bot**: Message [@BotFather](https://t.me/BotFather) on Telegram
-
-4. **Create `.env` file:**
-   ```bash
-   cp env.example .env
-   # Edit .env with your API keys
-   ```
-
-5. **Run the bot:**
-   ```bash
-   # Option 1: Use the run script (recommended)
-   ./run.sh
-   
-   # Option 2: Manual activation
-   conda activate groupmind
-   python bot.py
-   ```
-
-## Commands
-
-| Command | Description | Example |
-|---------|-------------|---------|
-| `/ask <question>` | Ask anything | `/ask What's the weather?` |
-| `/summarize [N]` | Summarize last N messages | `/summarize 10` |
-| `/translate <lang> <text>` | Translate text to language | `/translate Spanish Hello world` |
-| `/memory on\|off` | Toggle memory for chat | `/memory off` |
-| `/remind <time> <text>` | Set reminder (flexible parsing with LLM fallback) | `/remind 10m Stand up` |
-| `/help` | Show all commands | `/help` |
-
-## Usage
-
-- **In groups**: Mention your bot (e.g., `groupmind_mistral_bot hello`) or use commands
-- **In DMs**: Just send any message
-- **Memory**: When on, remembers conversation context
-- **Style**: Adapts to group communication style
-
-## How it works
-
-1. **Simple storage**: Uses in-memory dictionaries (no database needed)
-2. **Mistral AI**: Powers all responses with `mistral-large-latest` (updated to latest API)
-3. **Context awareness**: Remembers recent messages when memory is enabled
-4. **Group-friendly**: Brief responses in groups, detailed in DMs
-
-## Docker
-
-Build and run with Docker:
+## Run (Docker Compose)
 
 ```bash
-docker build -t groupmind .
-docker run --rm -p 8080:8080 \
-  -e MISTRAL_API_KEY=... -e TELEGRAM_BOT_TOKEN=... groupmind
+cp env.example .env
+docker compose up --build
+# Bot: polling + health/metrics on :8080
+# Redis: :6379, Prometheus: :9090, Grafana: :3000 (admin/admin)
 ```
 
-## Docker Compose (with Redis)
+Health/metrics:
+- `GET http://localhost:8080/ready` → 200 when ready
+- `GET http://localhost:8080/healthz` → JSON (uptime, username, Redis, etc.)
+- `GET http://localhost:8080/metrics` → Prometheus exposition
+
+Grafana: `http://localhost:3000` → dashboard “GroupMind Overview”
+
+## Run (local)
 
 ```bash
-docker-compose up --build
-```
-
-## Health & Metrics
-
-- GET `/healthz` → `ok`
-- GET `/metrics` → `updates_total`, `commands_total`
-
-## Render Deployment
-
-- Create a new Web Service on Render from this repo. Use Dockerfile.
-- Environment: set `MISTRAL_API_KEY`, `TELEGRAM_BOT_TOKEN`, optionally `REDIS_URL`.
-- Port: 8080 (for health/metrics only; Telegram uses polling by default).
-- For horizontal scaling later: switch to webhook mode and keep Redis enabled.
-
-## Troubleshooting
-
-**Import errors**: Make sure you're using the conda environment:
-```bash
-conda activate groupmind
+pip install -r requirements.txt
 python bot.py
 ```
 
-**"'Chat' object is not callable" error**: This was fixed by updating the Mistral AI library usage. The bot now uses the correct synchronous API calls.
+## Commands
 
-## File Structure
+- `/ask <question>`
+- `/summarize [N]`
+- `/translate <language> <text>`
+- `/remind|/reminder <time> <text>` (e.g., `10m Take a break`, `1 hour Call Ana`, `14:30 Standup`, `tomorrow 09:00 Flight`)
+- `/memory on|off`
+- `/archetype [@username|me]`
+- `/help`
 
-```
-mistral_bot/
-├── bot.py              # Main bot file (everything in one place)
-├── requirements.txt    # Dependencies
-├── env.example        # Environment variables template
-└── README.md          # This file
-```
+Notes:
+- Memory ON affects Q&A context; `/summarize` uses recent recorded text regardless.
+- Reminders are durable when `REDIS_URL` is set; otherwise they persist until process restarts.
 
-That's it! No complex setup, no databases, just a simple bot that works.
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`): flake8 → pytest (coverage) → Docker build.
+Push to GitHub and watch the “CI” workflow.
+
+## Deploy (Render)
+
+- Create a Web Service from this repo (Dockerfile)
+- Env: `MISTRAL_API_KEY`, `TELEGRAM_BOT_TOKEN`, optional `REDIS_URL`
+- Port: 8080 (health/metrics). Polling by default; for replicas switch to webhooks and use Redis

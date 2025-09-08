@@ -123,6 +123,8 @@ Commands:
 - /ask <question>
 - /summarize [N]
 - /translate <language> <text>
+- /remind|/reminder <time> <text>
+- /archetype [@username|me]
 - /memory on|off
 - /help
 
@@ -783,9 +785,7 @@ async def handle_group_message(update: Update, context: ContextTypes.DEFAULT_TYP
         add_message_to_memory(
             chat_id, message_type, text, update.effective_user.username
         )
-        # Optional: add structured logging here if needed
 
-    # If message mentions the bot, behave like /ask
     if BOT_USERNAME and text:
         tl = text.lower()
         bn = BOT_USERNAME.lower()
@@ -798,7 +798,6 @@ async def handle_group_message(update: Update, context: ContextTypes.DEFAULT_TYP
             ).strip()
             if not clean_text:
                 clean_text = "Hello! How can I help?"
-            # Build a minimal fake context with args for ask_command
             Ctx = type("Ctx", (), {})
             fake_context = Ctx()
             fake_context.args = clean_text.split()
