@@ -47,8 +47,9 @@ Health/metrics:
 Grafana: `http://localhost:3000` → dashboard “GroupMind Overview”
 
 <p align="center">
-  <img src="<img width="1601" height="776" alt="Screenshot 2025-09-09 at 16 17 32" src="https://github.com/user-attachments/assets/990ce213-af83-4cb0-82fb-678916d2b494" />
-" alt="Grafana Dashboard" width="800">
+  <img src="https://github.com/user-attachments/assets/990ce213-af83-4cb0-82fb-678916d2b494" 
+       alt="Grafana Dashboard" 
+       width="800">
 </p>
 
 ## Run (local)
