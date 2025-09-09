@@ -1,5 +1,7 @@
 # GroupMind
 
+[![Watch the demo](https://img.youtube.com/vi/5kWei3I7hZ4/0.jpg)](https://www.youtube.com/watch?v=5kWei3I7hZ4)
+
 Telegram group assistant powered by Mistral. Production-ready single-file bot with Redis durable reminders, rate limiting, health/ready endpoints, Prometheus metrics, Grafana dashboard, Docker/Compose, and CI.
 
 ## Features
