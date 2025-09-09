@@ -2,9 +2,10 @@
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=5kWei3I7hZ4">
-    <img src="https://img.youtube.com/vi/5kWei3I7hZ4/0.jpg" alt="Watch the demo" width="600">
+    <img src="https://img.youtube.com/vi/5kWei3I7hZ4/maxresdefault.jpg" alt="Watch the demo" width="600">
   </a>
 </p>
+
 
 
 Telegram group assistant powered by Mistral. Production-ready single-file bot with Redis durable reminders, rate limiting, health/ready endpoints, Prometheus metrics, Grafana dashboard, Docker/Compose, and CI.
